@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   FiPlus, FiSearch, FiTrash2, FiUserPlus, FiTrendingUp, FiCalendar,
-  FiFilter, FiDownload, FiPhone, FiMail, FiClock, FiTarget, FiAward, FiCheckCircle
+  FiFilter, FiDownload, FiPhone, FiMail, FiClock, FiTarget, FiAward, FiCheckCircle,
+  FiInfo, FiX
 } from 'react-icons/fi';
 import { FaFacebook, FaGoogle, FaLinkedin, FaInstagram, FaWhatsapp, FaGlobe } from 'react-icons/fa';
 import { dummyLeads } from '../data/dummyData';
@@ -10,8 +11,11 @@ const Leads: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterSource, setFilterSource] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('score-desc');
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const [showAddLeadForm, setShowAddLeadForm] = useState(false);
+  const [showScoreExplanation, setShowScoreExplanation] = useState(false);
 
   const filteredLeads = dummyLeads.filter((lead) => {
     const matchesSearch =
@@ -23,6 +27,36 @@ const Leads: React.FC = () => {
     const matchesSource = filterSource === 'all' || lead.source === filterSource;
     
     return matchesSearch && matchesStatus && matchesSource;
+  });
+
+  // Sorting logic
+  const sortedLeads = [...filteredLeads].sort((a, b) => {
+    switch (sortBy) {
+      case 'score-desc':
+        return b.score - a.score;
+      case 'score-asc':
+        return a.score - b.score;
+      case 'date-new':
+        return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
+      case 'date-old':
+        return new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
+      case 'budget-high':
+        const getBudgetValue = (budget: string) => {
+          const match = budget.match(/₹([\d,]+)/);
+          return match ? parseInt(match[1].replace(/,/g, '')) : 0;
+        };
+        return getBudgetValue(b.budget) - getBudgetValue(a.budget);
+      case 'budget-low':
+        const getBudgetValueLow = (budget: string) => {
+          const match = budget.match(/₹([\d,]+)/);
+          return match ? parseInt(match[1].replace(/,/g, '')) : 0;
+        };
+        return getBudgetValueLow(a.budget) - getBudgetValueLow(b.budget);
+      case 'name':
+        return a.name.localeCompare(b.name);
+      default:
+        return 0;
+    }
   });
 
   const statusColors = {
@@ -64,7 +98,10 @@ const Leads: React.FC = () => {
             <FiDownload size={20} />
             Export
           </button>
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-warm text-white rounded-xl hover:shadow-elegant-hover transition-all">
+          <button 
+            onClick={() => setShowAddLeadForm(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-warm text-white rounded-xl hover:shadow-elegant-hover transition-all"
+          >
             <FiPlus size={20} />
             Add Lead
           </button>
@@ -149,7 +186,7 @@ const Leads: React.FC = () => {
 
       {/* Filters and Search */}
       <div className="bg-white rounded-2xl shadow-card p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="md:col-span-2 relative">
             <FiSearch className="absolute left-4 top-3.5 text-gray-400" size={20} />
             <input
@@ -191,12 +228,29 @@ const Leads: React.FC = () => {
               <option value="Referral">Referral</option>
             </select>
           </div>
+
+          <div className="relative">
+            <FiFilter className="absolute left-4 top-3.5 text-gray-400" size={20} />
+            <select
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all appearance-none bg-white"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="score-desc">Score: High to Low</option>
+              <option value="score-asc">Score: Low to High</option>
+              <option value="date-new">Date: Newest First</option>
+              <option value="date-old">Date: Oldest First</option>
+              <option value="budget-high">Budget: High to Low</option>
+              <option value="budget-low">Budget: Low to High</option>
+              <option value="name">Name: A to Z</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Enhanced Leads Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredLeads.map((lead) => (
+        {sortedLeads.map((lead) => (
           <div 
             key={lead.id}
             className="bg-white rounded-2xl shadow-card hover:shadow-elegant transition-all cursor-pointer overflow-hidden border-l-4 border-brand-coral"
@@ -306,7 +360,7 @@ const Leads: React.FC = () => {
         ))}
       </div>
 
-      {filteredLeads.length === 0 && (
+      {sortedLeads.length === 0 && (
         <div className="bg-white rounded-2xl shadow-card p-12 text-center">
           <FiTrendingUp size={64} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 text-xl font-semibold">No leads found</p>
@@ -344,6 +398,87 @@ const Leads: React.FC = () => {
 
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {/* Status Info Banner */}
+              <div className="bg-gradient-to-r from-brand-cream to-brand-sage/10 rounded-xl p-4 mb-6 border-l-4 border-brand-sage">
+                <p className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                  <FiClock size={16} className="text-brand-sage" />
+                  Current Status
+                </p>
+                <p className="text-gray-900">{selectedLead.statusInfo}</p>
+                {selectedLead.lastActivity && (
+                  <p className="text-xs text-gray-500 mt-2">Last Activity: {selectedLead.lastActivity}</p>
+                )}
+              </div>
+
+              {/* Lead Score Breakdown */}
+              {selectedLead.scoreBreakdown && (
+                <div className="bg-white border-2 border-brand-cream rounded-xl p-4 mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                      <FiTarget className="text-brand-coral" />
+                      Lead Score Breakdown
+                    </h3>
+                    <button 
+                      onClick={() => setShowScoreExplanation(true)}
+                      className="text-brand-teal hover:text-brand-coral transition-colors text-sm font-medium flex items-center gap-1"
+                    >
+                      <FiInfo size={16} />
+                      How it works?
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Budget Match</span>
+                        <span className="font-semibold text-gray-900">{selectedLead.scoreBreakdown.budgetMatch}/30</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-brand-coral to-orange-500 h-2 rounded-full transition-all"
+                          style={{ width: `${(selectedLead.scoreBreakdown.budgetMatch / 30) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Response Time</span>
+                        <span className="font-semibold text-gray-900">{selectedLead.scoreBreakdown.responseTime}/25</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-brand-teal to-brand-sage h-2 rounded-full transition-all"
+                          style={{ width: `${(selectedLead.scoreBreakdown.responseTime / 25) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Engagement Level</span>
+                        <span className="font-semibold text-gray-900">{selectedLead.scoreBreakdown.engagement}/25</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all"
+                          style={{ width: `${(selectedLead.scoreBreakdown.engagement / 25) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Property Match</span>
+                        <span className="font-semibold text-gray-900">{selectedLead.scoreBreakdown.propertyMatch}/20</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all"
+                          style={{ width: `${(selectedLead.scoreBreakdown.propertyMatch / 20) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="space-y-4">
                   <div className="bg-brand-cream/50 rounded-xl p-4">
@@ -392,6 +527,223 @@ const Leads: React.FC = () => {
                   <FiCalendar size={20} />
                   Schedule Meeting
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Lead Form Modal */}
+      {showAddLeadForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowAddLeadForm(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-brand p-6 text-white flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Add New Lead</h2>
+                <p className="text-white/80 text-sm mt-1">Fill in the details to create a new lead</p>
+              </div>
+              <button 
+                onClick={() => setShowAddLeadForm(false)}
+                className="p-2 hover:bg-white/20 rounded-xl transition-all"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              <form className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                    <input
+                      type="text"
+                      placeholder="Enter full name"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                    <input
+                      type="email"
+                      placeholder="email@example.com"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Phone *</label>
+                    <input
+                      type="tel"
+                      placeholder="+91-9876543210"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Lead Source *</label>
+                    <select className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent appearance-none bg-white">
+                      <option value="">Select source</option>
+                      <option value="Google Ads">Google Ads</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Website Form">Website Form</option>
+                      <option value="Referral">Referral</option>
+                      <option value="Walk-in">Walk-in</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Budget Range *</label>
+                    <input
+                      type="text"
+                      placeholder="₹40,00,000 - ₹60,00,000"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Property Type *</label>
+                    <select className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent appearance-none bg-white">
+                      <option value="">Select type</option>
+                      <option value="1BHK">1BHK</option>
+                      <option value="2BHK">2BHK</option>
+                      <option value="3BHK">3BHK</option>
+                      <option value="4BHK">4BHK</option>
+                      <option value="Villa">Villa</option>
+                      <option value="Penthouse">Penthouse</option>
+                      <option value="Studio">Studio</option>
+                      <option value="Commercial">Commercial</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Assign To *</label>
+                  <select className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent appearance-none bg-white">
+                    <option value="">Select agent</option>
+                    <option value="Rohit Mehta">Rohit Mehta</option>
+                    <option value="Priya Kapoor">Priya Kapoor</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                  <textarea
+                    placeholder="Additional notes about the lead..."
+                    rows={3}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent resize-none"
+                  ></textarea>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddLeadForm(false)}
+                    className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-brand text-white rounded-xl hover:shadow-elegant-hover transition-all font-semibold"
+                  >
+                    Add Lead
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Score Explanation Modal */}
+      {showScoreExplanation && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowScoreExplanation(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-brand-coral to-orange-500 p-6 text-white flex items-center justify-between rounded-t-3xl">
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <FiAward size={28} />
+                  Lead Score Calculation
+                </h2>
+                <p className="text-white/80 text-sm mt-1">AI-powered scoring system (Max: 100 points)</p>
+              </div>
+              <button 
+                onClick={() => setShowScoreExplanation(false)}
+                className="p-2 hover:bg-white/20 rounded-xl transition-all"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-gradient-to-br from-brand-coral/10 to-orange-50 rounded-xl p-4 border-l-4 border-brand-coral">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+                    30
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-1">Budget Match (30 points)</h3>
+                    <p className="text-sm text-gray-600">
+                      How well the lead's budget aligns with available properties. Higher budget ranges receive more points.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-brand-teal/10 to-brand-sage/10 rounded-xl p-4 border-l-4 border-brand-teal">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-brand-teal rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+                    25
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-1">Response Time (25 points)</h3>
+                    <p className="text-sm text-gray-600">
+                      Speed of initial response and follow-up actions. Faster responses indicate higher interest and intent.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border-l-4 border-purple-500">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+                    25
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-1">Engagement Level (25 points)</h3>
+                    <p className="text-sm text-gray-600">
+                      Interaction frequency, question quality, site visits attended, and overall interest shown.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border-l-4 border-blue-500">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+                    20
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-1">Property Match (20 points)</h3>
+                    <p className="text-sm text-gray-600">
+                      How well the desired property type and location match with our current inventory and offerings.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-brand-cream to-brand-sage/10 rounded-xl p-4 mt-4">
+                <p className="text-sm text-gray-700">
+                  <strong className="text-brand-coral">Pro Tip:</strong> Leads with scores above 80 are considered high-priority and should be contacted within 24 hours for best conversion rates.
+                </p>
               </div>
             </div>
           </div>

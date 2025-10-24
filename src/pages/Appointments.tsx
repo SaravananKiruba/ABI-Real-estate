@@ -9,6 +9,8 @@ const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const filteredAppointments = dummyAppointments.filter((apt) => {
     const matchesSearch = apt.clientName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -32,6 +34,37 @@ const Appointments: React.FC = () => {
     return <FiCalendar className="text-gray-600" />;
   };
 
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    return { daysInMonth, startingDayOfWeek, year, month };
+  };
+
+  const getAppointmentsForDate = (date: string) => {
+    return dummyAppointments.filter(apt => apt.date === date);
+  };
+
+  const formatDate = (year: number, month: number, day: number) => {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  };
+
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
   return (
     <div className="lg:ml-64 p-4 sm:p-6 md:p-8 bg-brand-cream min-h-screen">
       {/* Header Section */}
@@ -41,7 +74,10 @@ const Appointments: React.FC = () => {
           <p className="text-sm md:text-base text-gray-600 mt-2">Schedule, track & manage all client meetings</p>
         </div>
         <div className="flex flex-wrap gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gradient-brand text-white rounded-xl hover:shadow-elegant-hover transition-all text-sm md:text-base">
+          <button 
+            onClick={() => setShowScheduleForm(true)}
+            className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gradient-brand text-white rounded-xl hover:shadow-elegant-hover transition-all text-sm md:text-base"
+          >
             <FiPlus size={20} />
             <span className="hidden sm:inline">Schedule Appointment</span>
             <span className="sm:hidden">New</span>
@@ -142,8 +178,9 @@ const Appointments: React.FC = () => {
       </div>
 
       {/* Appointments List - Mobile Responsive */}
-      <div className="space-y-4">
-        {filteredAppointments.map((apt) => (
+      {viewMode === 'list' && (
+        <div className="space-y-4">
+          {filteredAppointments.map((apt) => (
           <div 
             key={apt.id} 
             className="bg-white rounded-xl md:rounded-2xl shadow-card hover:shadow-elegant transition-all overflow-hidden border-l-4 border-brand-teal"
@@ -217,13 +254,224 @@ const Appointments: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
-      {filteredAppointments.length === 0 && (
+      {/* Calendar View */}
+      {viewMode === 'calendar' && (
+        <div className="bg-white rounded-2xl shadow-card p-6">
+          {/* Calendar Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={goToPreviousMonth}
+                className="p-2 bg-brand-cream hover:bg-brand-sage/20 rounded-xl transition-all"
+              >
+                <FiCalendar size={20} className="text-brand-sage transform rotate-180" />
+              </button>
+              <button
+                onClick={goToNextMonth}
+                className="p-2 bg-brand-cream hover:bg-brand-sage/20 rounded-xl transition-all"
+              >
+                <FiCalendar size={20} className="text-brand-sage" />
+              </button>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="grid grid-cols-7 gap-2">
+            {/* Day Headers */}
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="text-center font-semibold text-gray-600 py-2">
+                {day}
+              </div>
+            ))}
+
+            {/* Calendar Days */}
+            {(() => {
+              const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth);
+              const days = [];
+              
+              // Empty cells for days before month starts
+              for (let i = 0; i < startingDayOfWeek; i++) {
+                days.push(
+                  <div key={`empty-${i}`} className="aspect-square p-2 bg-gray-50 rounded-lg"></div>
+                );
+              }
+              
+              // Actual days
+              for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = formatDate(year, month, day);
+                const appointments = getAppointmentsForDate(dateStr);
+                const isToday = dateStr === new Date().toISOString().split('T')[0];
+                
+                days.push(
+                  <div 
+                    key={day} 
+                    className={`aspect-square p-2 rounded-lg border-2 transition-all hover:shadow-md ${
+                      isToday ? 'border-brand-coral bg-brand-coral/10' : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <div className={`text-sm font-semibold mb-1 ${isToday ? 'text-brand-coral' : 'text-gray-900'}`}>
+                      {day}
+                    </div>
+                    <div className="space-y-1">
+                      {appointments.slice(0, 2).map((apt, idx) => (
+                        <div 
+                          key={idx} 
+                          className="text-xs p-1 bg-brand-teal/20 rounded truncate"
+                          title={`${apt.time} - ${apt.clientName}`}
+                        >
+                          {apt.time.split(' ')[0]}
+                        </div>
+                      ))}
+                      {appointments.length > 2 && (
+                        <div className="text-xs text-brand-coral font-semibold">
+                          +{appointments.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+              
+              return days;
+            })()}
+          </div>
+        </div>
+      )}
+
+      {filteredAppointments.length === 0 && viewMode === 'list' && (
         <div className="bg-white rounded-2xl shadow-card p-8 md:p-12 text-center">
           <FiCalendar size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 text-lg md:text-xl font-semibold">No appointments found</p>
           <p className="text-gray-400 text-sm mt-2">Schedule your first appointment to get started</p>
+        </div>
+      )}
+
+      {/* Schedule Appointment Form Modal */}
+      {showScheduleForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowScheduleForm(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-brand p-6 text-white flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Schedule Appointment</h2>
+                <p className="text-white/80 text-sm mt-1">Book a new meeting with client</p>
+              </div>
+              <button 
+                onClick={() => setShowScheduleForm(false)}
+                className="p-2 hover:bg-white/20 rounded-xl transition-all"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Client Name *</label>
+                  <div className="relative">
+                    <FiUser className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Enter client name"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
+                    <div className="relative">
+                      <FiCalendar className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                      <input
+                        type="date"
+                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Time *</label>
+                    <div className="relative">
+                      <FiClock className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                      <input
+                        type="time"
+                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Appointment Type *</label>
+                  <select className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent appearance-none bg-white">
+                    <option value="">Select type</option>
+                    <option value="Site Visit">Site Visit</option>
+                    <option value="Virtual Meeting">Virtual Meeting</option>
+                    <option value="Office Meeting">Office Meeting</option>
+                    <option value="Document Review">Document Review</option>
+                    <option value="Property Viewing">Property Viewing</option>
+                    <option value="Consultation">Consultation</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
+                  <div className="relative">
+                    <FiMapPin className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Enter location or meeting link"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Assign To *</label>
+                  <select className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent appearance-none bg-white">
+                    <option value="">Select agent</option>
+                    <option value="Rohit Mehta">Rohit Mehta</option>
+                    <option value="Priya Kapoor">Priya Kapoor</option>
+                    <option value="Amit Sharma">Amit Sharma</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                  <textarea
+                    placeholder="Additional notes about the appointment..."
+                    rows={3}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none"
+                  ></textarea>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowScheduleForm(false)}
+                    className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-brand text-white rounded-xl hover:shadow-elegant-hover transition-all font-semibold"
+                  >
+                    Schedule
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>
