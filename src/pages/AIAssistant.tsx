@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { aiPropertyData, getUniqueLocations, getUniqueProjects, getUniqueFacings, AIProperty } from '../data/aiPropertyData';
+import { aiPropertyData, getUniqueLocations, getUniqueProjects, getUniqueFacings } from '../data/aiPropertyData';
 import { Search, Phone, MapPin, Compass, Building2, Home, Filter, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 const AIAssistant: React.FC = () => {
