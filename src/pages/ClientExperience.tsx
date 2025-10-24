@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiSmartphone, FiMessageCircle, FiGlobe, FiCamera, FiMic, FiBell, FiVideo, FiDollarSign } from 'react-icons/fi';
+import { FiSmartphone, FiMessageCircle, FiGlobe, FiCamera, FiBell, FiVideo, FiDollarSign } from 'react-icons/fi';
 
 const ClientExperience: React.FC = () => {
   return (

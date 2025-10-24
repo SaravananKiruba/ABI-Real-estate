@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiShield, FiFileText, FiCheckCircle, FiAlertCircle, FiCalendar, FiDollarSign } from 'react-icons/fi';
+import { FiShield, FiFileText, FiCheckCircle, FiAlertCircle, FiCalendar } from 'react-icons/fi';
 
 const LegalCompliance: React.FC = () => {
   return (

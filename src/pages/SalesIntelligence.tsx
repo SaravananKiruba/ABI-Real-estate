@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiTrendingUp, FiTarget, FiMap, FiDollarSign, FiUsers, FiBarChart } from 'react-icons/fi';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const SalesIntelligence: React.FC = () => {
   const conversionData = [

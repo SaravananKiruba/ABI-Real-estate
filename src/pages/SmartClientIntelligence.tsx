@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   FiCpu, FiTarget, FiAlertCircle, FiTrendingUp, FiClock, 
   FiMessageSquare, FiThumbsUp, FiZap, FiActivity,
