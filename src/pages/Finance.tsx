@@ -1,13 +1,51 @@
 import React, { useState } from 'react';
 import {
   FiDollarSign, FiClock, FiAlertCircle, FiDownload,
-  FiFilter, FiSearch, FiCheckCircle, FiSend
+  FiFilter, FiSearch, FiCheckCircle, FiSend, FiPlus, FiX
 } from 'react-icons/fi';
 import { dummyFinance } from '../data/dummyData';
 
 const Finance: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showAddForm, setShowAddForm] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    clientName: '',
+    propertyName: '',
+    amount: '',
+    dueDate: '',
+    milestone: '',
+    gstPercentage: '18',
+    paymentMethod: 'bank_transfer',
+    notes: '',
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would typically send the data to your backend
+    console.log('Form submitted:', formData);
+    // Reset form and close modal
+    setFormData({
+      clientName: '',
+      propertyName: '',
+      amount: '',
+      dueDate: '',
+      milestone: '',
+      gstPercentage: '18',
+      paymentMethod: 'bank_transfer',
+      notes: '',
+    });
+    setShowAddForm(false);
+    // Show success message (you could add a toast notification here)
+    alert('Invoice created successfully!');
+  };
 
   const filteredFinance = dummyFinance.filter((invoice) => {
     const matchesSearch = invoice.clientName.toLowerCase().includes(searchTerm.toLowerCase()) || invoice.id.toLowerCase().includes(searchTerm.toLowerCase());
@@ -33,6 +71,13 @@ const Finance: React.FC = () => {
           <p className="text-sm md:text-base text-gray-600 mt-2">Track payments, invoices & GST compliance</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => setShowAddForm(true)}
+            className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gradient-to-r from-brand-coral to-orange-500 text-white rounded-xl hover:shadow-elegant-hover transition-all"
+          >
+            <FiPlus size={20} />
+            <span>Add Invoice</span>
+          </button>
           <button className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-elegant-hover transition-all">
             <FiDownload size={20} />
             <span className="hidden sm:inline">Export</span>
@@ -200,6 +245,214 @@ const Finance: React.FC = () => {
           <FiDollarSign size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 text-lg md:text-xl font-semibold">No invoices found</p>
           <p className="text-gray-400 text-sm mt-2">Adjust your filters or create a new invoice</p>
+        </div>
+      )}
+
+      {/* Add Invoice Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-brand-coral to-orange-500 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold">Create New Invoice</h2>
+                <p className="text-white/80 text-sm mt-1">Add a new invoice entry to the system</p>
+              </div>
+              <button 
+                onClick={() => setShowAddForm(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-all"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Client Name */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Client Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="clientName"
+                    value={formData.clientName}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all"
+                    placeholder="Enter client name"
+                  />
+                </div>
+
+                {/* Property Name */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Property Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="propertyName"
+                    value={formData.propertyName}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all"
+                    placeholder="Enter property name"
+                  />
+                </div>
+
+                {/* Amount */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Amount (₹) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleInputChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all"
+                    placeholder="Enter amount"
+                  />
+                </div>
+
+                {/* GST Percentage */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    GST Percentage <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="gstPercentage"
+                    value={formData.gstPercentage}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all appearance-none bg-white"
+                  >
+                    <option value="0">0% (Exempt)</option>
+                    <option value="5">5%</option>
+                    <option value="12">12%</option>
+                    <option value="18">18%</option>
+                    <option value="28">28%</option>
+                  </select>
+                </div>
+
+                {/* Due Date */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Due Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="dueDate"
+                    value={formData.dueDate}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all"
+                  />
+                </div>
+
+                {/* Milestone */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Milestone <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="milestone"
+                    value={formData.milestone}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all appearance-none bg-white"
+                  >
+                    <option value="">Select milestone</option>
+                    <option value="Token Amount">Token Amount</option>
+                    <option value="Booking Amount">Booking Amount</option>
+                    <option value="Agreement Signing">Agreement Signing</option>
+                    <option value="Construction Phase 1">Construction Phase 1</option>
+                    <option value="Construction Phase 2">Construction Phase 2</option>
+                    <option value="Pre-Possession">Pre-Possession</option>
+                    <option value="Final Payment">Final Payment</option>
+                    <option value="Possession">Possession</option>
+                  </select>
+                </div>
+
+                {/* Payment Method */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Payment Method <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="paymentMethod"
+                    value={formData.paymentMethod}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all appearance-none bg-white"
+                  >
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="online_payment">Online Payment</option>
+                    <option value="cash">Cash</option>
+                    <option value="demand_draft">Demand Draft</option>
+                  </select>
+                </div>
+
+                {/* Notes */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Additional Notes
+                  </label>
+                  <textarea
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-transparent transition-all resize-none"
+                    placeholder="Add any additional notes or instructions..."
+                  />
+                </div>
+              </div>
+
+              {/* Calculation Summary */}
+              {formData.amount && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Invoice Summary</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Base Amount:</span>
+                      <span className="font-semibold">₹{parseFloat(formData.amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">GST ({formData.gstPercentage}%):</span>
+                      <span className="font-semibold">₹{(parseFloat(formData.amount) * parseFloat(formData.gstPercentage) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="pt-2 border-t-2 border-gray-300 flex justify-between text-base">
+                      <span className="text-gray-900 font-bold">Total Amount:</span>
+                      <span className="font-bold text-brand-coral">₹{(parseFloat(formData.amount) * (1 + parseFloat(formData.gstPercentage) / 100)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Form Actions */}
+              <div className="flex gap-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-coral to-orange-500 text-white rounded-xl hover:shadow-elegant-hover transition-all font-semibold"
+                >
+                  Create Invoice
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

@@ -17,6 +17,7 @@ import LegalCompliance from './pages/LegalCompliance';
 import ClientExperience from './pages/ClientExperience';
 import SalesIntelligence from './pages/SalesIntelligence';
 import PostHandover from './pages/PostHandover';
+import AIAssistant from './pages/AIAssistant';
 import './index.css';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
             <Route path="/client-portal" element={<ClientExperience />} />
             <Route path="/sales-intelligence" element={<SalesIntelligence />} />
             <Route path="/post-handover" element={<PostHandover />} />
+            <Route path="/ai-assistant" element={<AIAssistant />} />
           </Route>
         </Routes>
       </BrowserRouter>
