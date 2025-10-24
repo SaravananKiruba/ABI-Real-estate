@@ -33,7 +33,7 @@ const Sidebar: React.FC = () => {
     { path: '/quotations', label: 'Quotations', icon: FiFileText, category: 'main' },
     { path: '/finance', label: 'Finance', icon: FiDollarSign, category: 'main' },
     { path: '/attendance', label: 'Attendance', icon: FiCheckCircle, category: 'main' },
-    { path: '/documents', label: 'Documents', icon: FiFolder, category: 'main' },
+    { path: '/documents', label: 'Artefacts', icon: FiFolder, category: 'main' },
     { path: '/analytics', label: 'Analytics', icon: FiBarChart2, category: 'main' },
   ];
 

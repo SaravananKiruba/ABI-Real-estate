@@ -14,6 +14,27 @@ const Clients: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'interactions' | 'documents' | 'payments'>('overview');
   const [filterStage, setFilterStage] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [showFollowUpOnly, setShowFollowUpOnly] = useState(false);
+
+  // Calculate follow-up metrics
+  const today = new Date('2025-10-24'); // Current date from context
+  const clientsWithFollowUp = dummyClients.filter(client => {
+    if (!client.followUpDate) return false;
+    const followUpDate = new Date(client.followUpDate);
+    return followUpDate <= new Date(today.setDate(today.getDate() + 7)); // Due within next 7 days or overdue
+  });
+
+  const overdueFollowUps = dummyClients.filter(client => {
+    if (!client.followUpDate) return false;
+    const followUpDate = new Date(client.followUpDate);
+    const currentDate = new Date('2025-10-24');
+    return followUpDate < currentDate;
+  }).length;
+
+  const dueToday = dummyClients.filter(client => {
+    if (!client.followUpDate) return false;
+    return client.followUpDate === '2025-10-24';
+  }).length;
 
   const filteredClients = dummyClients.filter((client) => {
     const matchesSearch = 
@@ -24,7 +45,10 @@ const Clients: React.FC = () => {
     const matchesStage = filterStage === 'all' || client.stage === filterStage;
     const matchesPriority = filterPriority === 'all' || client.priority === filterPriority;
     
-    return matchesSearch && matchesStage && matchesPriority;
+    // Filter for follow-up due
+    const matchesFollowUp = !showFollowUpOnly || (client.followUpDate && clientsWithFollowUp.includes(client));
+    
+    return matchesSearch && matchesStage && matchesPriority && matchesFollowUp;
   });
 
   return (
@@ -98,17 +122,22 @@ const Clients: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-6 border-l-4 border-purple-500 hover:shadow-elegant transition-all">
+        <div 
+          className="bg-white rounded-2xl shadow-card p-6 border-l-4 border-purple-500 hover:shadow-elegant transition-all cursor-pointer"
+          onClick={() => setShowFollowUpOnly(!showFollowUpOnly)}
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 font-medium">Follow-ups Due</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">8</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{clientsWithFollowUp.length}</p>
               <p className="text-xs text-orange-600 mt-1 flex items-center gap-1">
-                <FiClock size={12} /> 3 overdue
+                <FiClock size={12} /> {overdueFollowUps} overdue • {dueToday} today
               </p>
             </div>
-            <div className="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center">
-              <FiCalendar size={24} className="text-purple-500" />
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors ${
+              showFollowUpOnly ? 'bg-purple-500 text-white' : 'bg-purple-50 text-purple-500'
+            }`}>
+              <FiCalendar size={24} />
             </div>
           </div>
         </div>
@@ -116,6 +145,20 @@ const Clients: React.FC = () => {
 
       {/* Filters and Search */}
       <div className="bg-white rounded-2xl shadow-card p-6 mb-6">
+        {showFollowUpOnly && (
+          <div className="mb-4 p-3 bg-purple-50 border-l-4 border-purple-500 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2 text-purple-700">
+              <FiCalendar size={18} />
+              <span className="font-semibold">Showing clients with follow-ups due (within 7 days)</span>
+            </div>
+            <button 
+              onClick={() => setShowFollowUpOnly(false)}
+              className="text-purple-600 hover:text-purple-800 font-semibold text-sm"
+            >
+              Clear Filter
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2 relative">
             <FiSearch className="absolute left-4 top-3.5 text-gray-400" size={20} />
@@ -169,7 +212,7 @@ const Clients: React.FC = () => {
                 <th className="px-6 py-4 text-left text-sm font-semibold">Project & Stage</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold">Priority</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold">Budget</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Last Contact</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Follow-Up Date</th>
                 <th className="px-6 py-4 text-center text-sm font-semibold">Actions</th>
               </tr>
             </thead>
@@ -247,8 +290,39 @@ const Clients: React.FC = () => {
                   </td>
 
                   <td className="px-6 py-4">
-                    <p className="text-sm text-gray-600">{client.lastContact}</p>
-                    <p className="text-xs text-gray-400 mt-1">3 days ago</p>
+                    {client.followUpDate ? (
+                      <>
+                        <p className="text-sm text-gray-900 font-semibold">{client.followUpDate}</p>
+                        {(() => {
+                          const followUpDate = new Date(client.followUpDate);
+                          const currentDate = new Date('2025-10-24');
+                          const isOverdue = followUpDate < currentDate;
+                          const isDueToday = client.followUpDate === '2025-10-24';
+                          
+                          if (isOverdue) {
+                            return (
+                              <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                                <FiAlertCircle size={12} /> Overdue
+                              </p>
+                            );
+                          } else if (isDueToday) {
+                            return (
+                              <p className="text-xs text-orange-600 mt-1 flex items-center gap-1">
+                                <FiClock size={12} /> Due Today
+                              </p>
+                            );
+                          } else {
+                            return (
+                              <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                                <FiCheckCircle size={12} /> Upcoming
+                              </p>
+                            );
+                          }
+                        })()}
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-400">Not set</p>
+                    )}
                   </td>
 
                   <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>

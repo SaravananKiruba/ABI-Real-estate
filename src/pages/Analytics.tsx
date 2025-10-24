@@ -135,7 +135,7 @@ const Analytics: React.FC = () => {
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
               <FiBarChart2 className="text-blue-600" size={20} />
             </div>
-            <h3 className="text-base md:text-lg font-semibold text-gray-900">Lead Source ROI</h3>
+            <h3 className="text-base md:text-lg font-semibold text-gray-900">Lead Source Wise Closure</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={dummyAnalytics.leadSourceROI}>
@@ -144,8 +144,8 @@ const Analytics: React.FC = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="leads" fill="#3b82f6" />
-              <Bar dataKey="conversions" fill="#10b981" />
+              <Bar dataKey="leads" fill="#3b82f6" name="Total Leads" />
+              <Bar dataKey="conversions" fill="#10b981" name="Closed Deals" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -196,30 +196,37 @@ const Analytics: React.FC = () => {
             <h3 className="text-base md:text-lg font-semibold text-gray-900">Project Progress</h3>
           </div>
           <div className="space-y-4 md:space-y-5">
-            {dummyProjects.map((project) => (
-              <div key={project.id} className="bg-gray-50 rounded-xl p-3 md:p-4">
-                <div className="flex justify-between mb-2">
-                  <span className="font-semibold text-gray-900 text-sm md:text-base">{project.name}</span>
-                  <span className="text-xs md:text-sm px-3 py-1 bg-brand-teal/20 text-brand-teal rounded-full font-bold">{project.completion}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 md:h-3">
-                  <div
-                    className="bg-gradient-to-r from-brand-coral to-brand-teal h-2.5 md:h-3 rounded-full transition-all shadow-sm"
-                    style={{ width: `${project.completion}%` }}
-                  ></div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-3 text-xs md:text-sm">
-                  <div className="flex justify-between px-2 py-1 bg-white rounded-lg">
-                    <span className="text-gray-600">Sold:</span>
-                    <span className="font-bold text-green-600">{project.soldUnits}/{project.totalUnits}</span>
+            {dummyProjects.map((project) => {
+              // Calculate real-time completion percentage based on sold units
+              const completionPercentage = ((project.soldUnits / project.totalUnits) * 100).toFixed(1);
+              
+              return (
+                <div key={project.id} className="bg-gray-50 rounded-xl p-3 md:p-4">
+                  <div className="flex justify-between mb-2">
+                    <span className="font-semibold text-gray-900 text-sm md:text-base">{project.name}</span>
+                    <span className="text-xs md:text-sm px-3 py-1 bg-brand-teal/20 text-brand-teal rounded-full font-bold">
+                      {completionPercentage}%
+                    </span>
                   </div>
-                  <div className="flex justify-between px-2 py-1 bg-white rounded-lg">
-                    <span className="text-gray-600">Available:</span>
-                    <span className="font-bold text-blue-600">{project.availableUnits}</span>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 md:h-3">
+                    <div
+                      className="bg-gradient-to-r from-brand-coral to-brand-teal h-2.5 md:h-3 rounded-full transition-all shadow-sm"
+                      style={{ width: `${completionPercentage}%` }}
+                    ></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mt-3 text-xs md:text-sm">
+                    <div className="flex justify-between px-2 py-1 bg-white rounded-lg">
+                      <span className="text-gray-600">Sold:</span>
+                      <span className="font-bold text-green-600">{project.soldUnits}/{project.totalUnits}</span>
+                    </div>
+                    <div className="flex justify-between px-2 py-1 bg-white rounded-lg">
+                      <span className="text-gray-600">Available:</span>
+                      <span className="font-bold text-blue-600">{project.availableUnits}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -231,7 +238,7 @@ const Analytics: React.FC = () => {
             <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <FiUsers className="text-white" size={20} />
             </div>
-            <h3 className="text-base md:text-lg font-semibold text-white">Lead Source Performance</h3>
+            <h3 className="text-base md:text-lg font-semibold text-white">Lead Source Wise Closure Analysis</h3>
           </div>
         </div>
         
@@ -242,14 +249,16 @@ const Analytics: React.FC = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Source</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Total Leads</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Conversions</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Conv. Rate %</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">ROI</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Closed Deals</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Closure Rate %</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Revenue Generated</th>
               </tr>
             </thead>
             <tbody>
               {dummyAnalytics.leadSourceROI.map((source, idx) => {
                 const rate = ((source.conversions / source.leads) * 100).toFixed(1);
+                const avgDealValue = 6556071; // Average deal value from analytics
+                const revenueGenerated = source.conversions * avgDealValue;
                 return (
                   <tr key={idx} className="border-b hover:bg-brand-cream/50 transition-all">
                     <td className="px-6 py-4 font-semibold text-gray-900">{source.source}</td>
@@ -260,7 +269,7 @@ const Analytics: React.FC = () => {
                         {rate}%
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-bold text-brand-coral">₹{(source.conversions * 6556071).toLocaleString('en-IN')}</td>
+                    <td className="px-6 py-4 font-bold text-brand-coral">₹{revenueGenerated.toLocaleString('en-IN')}</td>
                   </tr>
                 );
               })}
@@ -272,26 +281,28 @@ const Analytics: React.FC = () => {
         <div className="md:hidden space-y-3 p-4">
           {dummyAnalytics.leadSourceROI.map((source, idx) => {
             const rate = ((source.conversions / source.leads) * 100).toFixed(1);
+            const avgDealValue = 6556071;
+            const revenueGenerated = source.conversions * avgDealValue;
             return (
               <div key={idx} className="bg-gray-50 rounded-xl p-4 border-l-4 border-brand-coral">
                 <div className="flex justify-between items-center mb-3">
                   <h4 className="font-bold text-gray-900">{source.source}</h4>
                   <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
-                    {rate}%
+                    {rate}% Closure
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="bg-white rounded-lg p-2">
-                    <p className="text-gray-600 text-xs">Leads</p>
+                    <p className="text-gray-600 text-xs">Total Leads</p>
                     <p className="font-bold text-brand-teal">{source.leads}</p>
                   </div>
                   <div className="bg-white rounded-lg p-2">
-                    <p className="text-gray-600 text-xs">Conversions</p>
+                    <p className="text-gray-600 text-xs">Closed Deals</p>
                     <p className="font-bold text-green-600">{source.conversions}</p>
                   </div>
                   <div className="bg-white rounded-lg p-2 col-span-2">
-                    <p className="text-gray-600 text-xs">Estimated ROI</p>
-                    <p className="font-bold text-brand-coral">₹{(source.conversions * 6556071).toLocaleString('en-IN')}</p>
+                    <p className="text-gray-600 text-xs">Revenue Generated</p>
+                    <p className="font-bold text-brand-coral">₹{revenueGenerated.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
               </div>

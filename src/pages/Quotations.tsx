@@ -149,18 +149,32 @@ const Quotations: React.FC = () => {
                     <span className="text-gray-600">Base Price:</span>
                     <span className="font-semibold">{quotation.basePrice}</span>
                   </div>
+                  {quotation.discount !== "₹0" && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Discount:</span>
+                      <span className="font-semibold text-red-600">- {quotation.discount}</span>
+                    </div>
+                  )}
+                  {quotation.discountedPrice && (
+                    <div className="flex justify-between bg-blue-50 -mx-2 px-2 py-1 rounded">
+                      <span className="text-gray-700 font-medium">After Discount:</span>
+                      <span className="font-bold text-blue-700">{quotation.discountedPrice}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">GST (18%):</span>
-                    <span className="font-semibold">{quotation.gst}</span>
+                    <span className="text-gray-600">GST:</span>
+                    <span className="font-semibold text-green-600">+ {quotation.gst}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Stamp Duty:</span>
-                    <span className="font-semibold">{quotation.stampDuty}</span>
+                    <span className="font-semibold text-orange-600">+ {quotation.stampDuty}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Discount:</span>
-                    <span className="font-semibold text-red-600">-{quotation.discount}</span>
-                  </div>
+                  {quotation.registrationCharges && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Registration:</span>
+                      <span className="font-semibold">+ {quotation.registrationCharges}</span>
+                    </div>
+                  )}
                   <div className="border-t-2 border-gray-300 pt-2 mt-2 flex justify-between">
                     <span className="font-bold text-gray-900">Total Amount:</span>
                     <span className="font-bold text-brand-coral text-base md:text-lg">{quotation.total}</span>

@@ -40,8 +40,8 @@ const Documents: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Document Management</h1>
-          <p className="text-sm md:text-base text-gray-600 mt-2">Cloud storage, OCR & automated verification</p>
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Artefacts Management</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-2">Cloud storage, OCR & automated verification for all project artefacts</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
           <button className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:shadow-elegant-hover transition-all">
@@ -55,7 +55,7 @@ const Documents: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
         <div className="bg-white rounded-xl md:rounded-2xl shadow-card p-4 md:p-6 border-l-4 border-blue-500 hover:shadow-elegant transition-all">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs md:text-sm text-gray-500 font-medium">Total Documents</p>
+            <p className="text-xs md:text-sm text-gray-500 font-medium">Total Artefacts</p>
             <FiFolder className="text-blue-500 text-xl md:text-2xl" />
           </div>
           <p className="text-xl md:text-3xl font-bold text-gray-900">{dummyDocuments.length}</p>

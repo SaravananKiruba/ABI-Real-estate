@@ -10,7 +10,8 @@ export const dummyClients = [
     budget: "₹50,00,000",
     source: "Website",
     lastContact: "2025-10-20",
-    notes: "Interested in 3BHK apartment",
+    followUpDate: "2025-10-23", // Overdue
+    notes: "Interested in 3BHK apartment - Payment pending",
     documents: ["KYC", "PAN"],
   },
   {
@@ -24,7 +25,8 @@ export const dummyClients = [
     budget: "₹75,00,000",
     source: "Referral",
     lastContact: "2025-10-19",
-    notes: "Looking for luxury 4BHK",
+    followUpDate: "2025-10-25", // Due today
+    notes: "Looking for luxury 4BHK - Final decision pending",
     documents: ["KYC", "ID Proof"],
   },
   {
@@ -38,7 +40,8 @@ export const dummyClients = [
     budget: "₹1,25,00,000",
     source: "Google Ads",
     lastContact: "2025-10-21",
-    notes: "Commercial space inquiry",
+    followUpDate: "2025-10-24", // Due today
+    notes: "Commercial space inquiry - Send brochure",
     documents: ["KYC"],
   },
   {
@@ -52,8 +55,99 @@ export const dummyClients = [
     budget: "₹35,00,000",
     source: "Facebook",
     lastContact: "2025-10-18",
-    notes: "2BHK starter home",
+    followUpDate: "2025-10-22", // Overdue
+    notes: "2BHK starter home - Registration documents required",
     documents: ["KYC", "PAN", "ID Proof"],
+  },
+  {
+    id: 5,
+    name: "Suresh Iyer",
+    email: "suresh.iyer@tech.com",
+    phone: "+91-9876543214",
+    project: "Skyline Heights",
+    stage: "verified",
+    priority: "high",
+    budget: "₹60,00,000",
+    source: "Referral",
+    lastContact: "2025-10-22",
+    followUpDate: "2025-10-26",
+    notes: "IT Professional - Preferred corner unit 3BHK",
+    documents: ["KYC", "PAN", "ID Proof", "Income Proof"],
+  },
+  {
+    id: 6,
+    name: "Kavita Menon",
+    email: "kavita.menon@gmail.com",
+    phone: "+91-9876543215",
+    project: "Emerald Green",
+    stage: "prospect",
+    priority: "high",
+    budget: "₹80,00,000",
+    source: "Google Ads",
+    lastContact: "2025-10-23",
+    followUpDate: "2025-10-25", // Due today
+    notes: "Doctor - Looking for 4BHK with medical room setup",
+    documents: ["KYC"],
+  },
+  {
+    id: 7,
+    name: "Vikram Malhotra",
+    email: "vikram@business.in",
+    phone: "+91-9876543216",
+    project: "Business Complex",
+    stage: "booked",
+    priority: "medium",
+    budget: "₹95,00,000",
+    source: "Website",
+    lastContact: "2025-10-20",
+    followUpDate: "2025-10-28",
+    notes: "Business owner - Finalized commercial office unit",
+    documents: ["KYC", "PAN", "Business Registration"],
+  },
+  {
+    id: 8,
+    name: "Anita Desai",
+    email: "anita.desai@email.com",
+    phone: "+91-9876543217",
+    project: "Urban Vista",
+    stage: "verified",
+    priority: "medium",
+    budget: "₹42,00,000",
+    source: "Facebook",
+    lastContact: "2025-10-21",
+    followUpDate: "2025-10-24", // Due today
+    notes: "Teacher - First time buyer, needs loan assistance",
+    documents: ["KYC", "PAN"],
+  },
+  {
+    id: 9,
+    name: "Rohan Khanna",
+    email: "rohan.khanna@startup.com",
+    phone: "+91-9876543218",
+    project: "Skyline Heights",
+    stage: "prospect",
+    priority: "low",
+    budget: "₹45,00,000",
+    source: "Instagram",
+    lastContact: "2025-10-22",
+    followUpDate: "2025-10-29",
+    notes: "Startup founder - Price negotiation ongoing",
+    documents: ["KYC"],
+  },
+  {
+    id: 10,
+    name: "Meera Nambiar",
+    email: "meera.nambiar@corp.com",
+    phone: "+91-9876543219",
+    project: "Emerald Green",
+    stage: "booked",
+    priority: "high",
+    budget: "₹90,00,000",
+    source: "Referral",
+    lastContact: "2025-10-23",
+    followUpDate: "2025-10-25", // Due today
+    notes: "Corporate executive - Premium 4BHK booked, loan approval pending",
+    documents: ["KYC", "PAN", "ID Proof", "Income Proof"],
   },
 ];
 
@@ -338,41 +432,77 @@ export const dummyQuotations = [
   {
     id: "QT-2025-001",
     clientName: "Rajesh Kumar",
-    property: "3BHK Apartment",
+    property: "Skyline Heights - 3BHK Apartment, 1450 sq.ft",
     basePrice: "₹50,00,000",
-    gst: "₹3,00,000",
-    stampDuty: "₹2,50,000",
-    total: "₹55,50,000",
+    discount: "₹50,000",
+    discountedPrice: "₹49,50,000", // Base price - Discount
+    gst: "₹89,100", // 1.8% GST on discounted price (residential)
+    stampDuty: "₹2,47,500", // 5% stamp duty in Karnataka
+    registrationCharges: "₹50,000",
+    total: "₹52,36,600", // Discounted price + GST + Stamp Duty + Registration
     status: "approved",
     createdDate: "2025-10-20",
     validTill: "2025-11-20",
-    discount: "₹50,000",
   },
   {
     id: "QT-2025-002",
     clientName: "Priya Singh",
-    property: "4BHK Luxury Apartment",
+    property: "Emerald Green - 4BHK Luxury Apartment, 2200 sq.ft",
     basePrice: "₹75,00,000",
-    gst: "₹4,50,000",
-    stampDuty: "₹3,75,000",
-    total: "₹82,25,000",
+    discount: "₹1,00,000",
+    discountedPrice: "₹74,00,000",
+    gst: "₹1,33,200", // 1.8% GST (residential under construction)
+    stampDuty: "₹5,18,000", // 7% stamp duty in Maharashtra
+    registrationCharges: "₹75,000",
+    total: "₹80,26,200",
     status: "sent",
     createdDate: "2025-10-21",
     validTill: "2025-11-21",
-    discount: "₹1,00,000",
   },
   {
     id: "QT-2025-003",
     clientName: "Amit Patel",
-    property: "Commercial Office Space",
+    property: "Business Complex - Commercial Office, 1800 sq.ft",
     basePrice: "₹1,25,00,000",
-    gst: "₹7,50,000",
-    stampDuty: "₹6,25,000",
-    total: "₹1,38,75,000",
+    discount: "₹0",
+    discountedPrice: "₹1,25,00,000",
+    gst: "₹15,00,000", // 12% GST on commercial property
+    stampDuty: "₹6,25,000", // 5% stamp duty
+    registrationCharges: "₹1,50,000",
+    total: "₹1,47,75,000",
     status: "draft",
     createdDate: "2025-10-22",
     validTill: "2025-11-22",
-    discount: "₹0",
+  },
+  {
+    id: "QT-2025-004",
+    clientName: "Suresh Iyer",
+    property: "Skyline Heights - 3BHK Corner Unit, 1550 sq.ft",
+    basePrice: "₹60,00,000",
+    discount: "₹75,000",
+    discountedPrice: "₹59,25,000",
+    gst: "₹1,06,650", // 1.8% GST
+    stampDuty: "₹2,96,250", // 5% stamp duty
+    registrationCharges: "₹55,000",
+    total: "₹63,82,900",
+    status: "sent",
+    createdDate: "2025-10-22",
+    validTill: "2025-11-22",
+  },
+  {
+    id: "QT-2025-005",
+    clientName: "Meera Nambiar",
+    property: "Emerald Green - 4BHK Premium, 2400 sq.ft",
+    basePrice: "₹90,00,000",
+    discount: "₹1,50,000",
+    discountedPrice: "₹88,50,000",
+    gst: "₹1,59,300", // 1.8% GST
+    stampDuty: "₹6,19,500", // 7% stamp duty
+    registrationCharges: "₹80,000",
+    total: "₹96,08,800",
+    status: "approved",
+    createdDate: "2025-10-23",
+    validTill: "2025-11-23",
   },
 ];
 
@@ -538,7 +668,7 @@ export const dummyProjects = [
     availableUnits: 24,
     soldUnits: 126,
     status: "ongoing",
-    completion: 75,
+    completion: 84, // (126/150) * 100 = 84%
   },
   {
     id: 2,
@@ -548,7 +678,7 @@ export const dummyProjects = [
     availableUnits: 42,
     soldUnits: 158,
     status: "ongoing",
-    completion: 60,
+    completion: 79, // (158/200) * 100 = 79%
   },
   {
     id: 3,
@@ -558,7 +688,7 @@ export const dummyProjects = [
     availableUnits: 15,
     soldUnits: 65,
     status: "completed",
-    completion: 100,
+    completion: 81.25, // (65/80) * 100 = 81.25%
   },
 ];
 
