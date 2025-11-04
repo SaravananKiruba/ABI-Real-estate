@@ -23,7 +23,7 @@ import './index.css';
 function App() {
   return (
     <ChakraProvider>
-      <BrowserRouter basename="/ABI-Real-estate">
+      <BrowserRouter basename="/Real-Estate-IBMS">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<Layout />}>
